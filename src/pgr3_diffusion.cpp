@@ -12,8 +12,8 @@ void calculateDiffusionSerial (double k, double rt){
   int i;
 
   while (!stopCondition){
-    thrust::host_vector<double> prev_u() = results[t]
-    thrust::host_vector<double> array_u(array.capacity());
+    thrust::host_vector<double> prev_u(results[t].capacity()) = results[t];
+    thrust::host_vector<double> array_u(results[t].capacity());
 
     for (i=0; i < prev_u.capacity(); i++){
       if (i==0){
