@@ -6,19 +6,19 @@
 
 thrust::host_vector< thrust::host_vector<double> > results;
 
-void calculateDiffusionSerial (double k, double rt){
+void calculateDiffusionSerial (double k, double rt) {
   bool stopCondition = false;
   int t = 0;
   int i;
 
   while (!stopCondition){
-    thrust::host_vector<double> prev_u(results[t].capacity()) = results[t];
-    thrust::host_vector<double> array_u(results[t].capacity());
+    thrust::host_vector<double> prev_u(results[t].size()) = results[t];
+    thrust::host_vector<double> array_u(results[t].size());
 
-    for (i=0; i < prev_u.capacity(); i++){
+    for (i=0; i < prev_u.size(); i++){
       if (i==0){
-        array_u.insert(i, (k+prev_u[i+1])/2)
-      }else if (i>0 && i<prev_u.capacity()-1){
+        array_u.insert(i, (k+prev_u[i+1])/2);
+      }else if (i>0 && i<prev_u.size()-1){
         array_u.insert(i, (prev_u[i+1]+prev_u[i-1]/2));
       } else {
         array_u.insert(i, (rt+prev_u[i-1])/2);
@@ -29,7 +29,7 @@ void calculateDiffusionSerial (double k, double rt){
 
     bool noVariation = true;
     long j;
-    for (j=0, j < array_u.capacity(), j++) {
+    for (j=0; j < array_u.size(); j++) {
       if(prev_u[j] <= array_u[j]+MIN_VARIATION && prev_u[j] >= array_u[j]-MIN_VARIATION){
         noVariation=false;
       }
@@ -40,8 +40,7 @@ void calculateDiffusionSerial (double k, double rt){
   }
 }
 
-int main (int argc, char *argv[])
-{
+int main (int argc, char *argv[]) {
   long lengthBar = 0;
   long deltaLength = 0;
   double k = 0;
@@ -71,7 +70,7 @@ int main (int argc, char *argv[])
   calculateDiffusionSerial(k, roomTemp);
 
   printf ("Final length of results:\n");
-  printf ("%u ", results.capacity);
+  printf ("%u ", results.size());
   printf ("\n");
 
   return 0;
