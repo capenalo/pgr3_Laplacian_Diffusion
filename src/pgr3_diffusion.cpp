@@ -8,24 +8,26 @@ thrust::host_vector< thrust::host_vector<double> > results;
 
 void calculateDiffusionSerial (double k, double rt) {
   bool stopCondition = false;
-  int t = 0;
-  int i;
+  long t = 0;
+  long i;
 
   while (!stopCondition){
-    thrust::host_vector<double> prev_u(results[t].size()) = results[t];
+    thrust::host_vector<double> prev_u(results[t].size());
     thrust::host_vector<double> array_u(results[t].size());
+
+    prev_u[t] = results[t];
 
     for (i=0; i < prev_u.size(); i++){
       if (i==0){
-        array_u.insert(i, (k+prev_u[i+1])/2);
+        array_u[i] = (k + prev_u[i+1])/2;
       }else if (i>0 && i<prev_u.size()-1){
-        array_u.insert(i, (prev_u[i+1]+prev_u[i-1]/2));
+        array_u[i] = (prev_u[i+1] + prev_u[i-1])/2;
       } else {
-        array_u.insert(i, (rt+prev_u[i-1])/2);
+        array_u[i] = (rt + prev_u[i-1])/2;
       }
     }
     t++;
-    results.insert(t, array_u);
+    results[t] = array_u;
 
     bool noVariation = true;
     long j;
@@ -62,9 +64,9 @@ int main (int argc, char *argv[]) {
     u.resize(ceil(lengthBar/(float)deltaLength));
     int i;
     for (i = 0; i < ceil(lengthBar/(float)deltaLength); i++){
-      u.insert(i, roomTemp);
+      u[i] = roomTemp;
     }
-    results.insert(0, u);
+    results[0] = u;
 	}
 
   calculateDiffusionSerial(k, roomTemp);
