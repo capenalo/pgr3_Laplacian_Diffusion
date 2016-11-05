@@ -7,17 +7,17 @@ using namespace std;
 
 #define MIN_VARIATION 0.05
 
-thrust::host_vector< thrust::host_vector<double> > results;
+thrust::host_vector< thrust::host_vector<double> > results();
 
 void calculateDiffusionSerial (double k, double rt) {
   bool stopCondition = false;
   long t = 0;
   long i;
 
-  while (!stopCondition){
-    thrust::host_vector<double> prev_u(results[t].size());
-    thrust::host_vector<double> array_u(results[t].size());
+  thrust::host_vector<double> prev_u(results[t].size());
+  thrust::host_vector<double> array_u(results[t].size());
 
+  while (!stopCondition){
     prev_u = results[t];
 
     for (i=0; i < prev_u.size(); i++){
@@ -30,7 +30,7 @@ void calculateDiffusionSerial (double k, double rt) {
       }
     }
     t++;
-    results[t] = array_u;
+    results.push_back(array_u);
 
     bool noVariation = true;
     long j;
@@ -69,7 +69,7 @@ int main (int argc, char *argv[]) {
     for (i = 0; i < ceil(lengthBar/(float)deltaLength); i++){
       u[i] = roomTemp;
     }
-    results[0] = u;
+    results.push_back(u);
 	}
 
   calculateDiffusionSerial(k, roomTemp);
