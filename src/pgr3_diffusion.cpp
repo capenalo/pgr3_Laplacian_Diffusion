@@ -4,7 +4,7 @@
 
 #define MIN_VARIATION 0.05
 
-thrust::host_vector<host_vector> results;
+thrust::host_vector< thrust::host_vector<double> > results;
 
 void calculateDiffusionSerial (double k, double rt){
   bool stopCondition = false;
