@@ -3,8 +3,39 @@
 #include <iostream> 
 
 using namespace std;
-void calculateDiffusionSerial (double *array, double k, double rt){
 
+thrust::host_vector< thrust::host_vector<double> > times;
+
+void calculateDiffusionSerial (thrust::host_vector<double> u, double k, double rt){
+  times.push_back(u);
+  bool stop = false;
+  long t = 0;
+  thrust::host_vector<double> new_u(u.size());
+  while (!stop){
+     u = times[t];
+     int i;
+     for(i = 0; i < u.size(); i++){
+       if(i==0){
+         new_u[i] = (k+u[i+1])/2;
+       }else if(i < u.size()-1){
+         new_u[i] = (u[i-1] + u[i+1]) /2;
+       }else{
+         new_u[i] = (u[i-1]+rt)/2;
+       }
+     }
+     times.push_back(new_u);
+     t++;
+     bool allTempsEqual=true;
+     long j;
+     for (j=0; j < new_u.size(); j++){
+       if(u[j] != new_u[j]){
+         allTempsEqual=false;
+       }
+     }
+     if(allTempsEqual){
+        stop = true;
+     }
+  }
 }
 
 int main(int argc, char *argv[]) 
@@ -31,6 +62,9 @@ int main(int argc, char *argv[])
       u[i] = roomTemp;
     }
     cout << "lenghtBar: " << lengthBar << " deltaLenght: " << deltaLength << " K: " << k << " Room Temp: " << roomTemp << " u Size: " << u.size() << " u[0]: " << u[0]<< endl;
+    cout << "initiating serial" << endl;
+    calculateDiffusionSerial(u, k, roomTemp);
+    cout << "finished!!! Times to diffuse:  " << times.size() << endl; 
   }
   return 0; 
 }
