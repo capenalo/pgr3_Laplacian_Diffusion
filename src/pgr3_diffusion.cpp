@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
 #include <thrust/host_vector.h>
 
 #define MIN_VARIATION 0.05
