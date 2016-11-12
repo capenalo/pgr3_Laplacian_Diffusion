@@ -7,7 +7,7 @@ using namespace std;
 
 #define MIN_VARIATION 0.05
 
-thrust::host_vector< thrust::host_vector<double> > results();
+thrust::host_vector< thrust::host_vector<double> > results;
 
 void calculateDiffusionSerial (double k, double rt) {
   bool stopCondition = false;
@@ -35,7 +35,7 @@ void calculateDiffusionSerial (double k, double rt) {
     bool noVariation = true;
     long j;
     for (j=0; j < array_u.size(); j++) {
-      if(prev_u[j] <= array_u[j]+MIN_VARIATION && prev_u[j] >= array_u[j]-MIN_VARIATION){
+      if(array_u[j] <= prev_u[j]+MIN_VARIATION) { //&& array_u[j] >= prev_u[j]-MIN_VARIATION){
         noVariation=false;
       }
     }
