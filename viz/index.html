@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>HPC - Program 3</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <div class="container theme-showcase">
+      <div class="jumbotron">
+        <h1>HPC - Program 3 <small>CUDA</small></h1>
+
+        </br>
+        </br>
+
+        <button type="button" class="btn btn-lg btn-primary" onclick="displayGraph()">
+          <span class="glyphicon glyphicon-star" aria-hidden="true"></span> Animate next step
+        </button>
+
+        </br>
+        </br>
+
+        <div id="myDiv" style="width: 1024px; height: 640px;"><!-- Plotly chart will be drawn inside this DIV --></div>
+      </div>
+    </div>
+
+    <script>
+        var counter = 0;
+        function displayGraph(){
+          counter++;
+          console.log("Element clicked: " + counter);
+          var sourceFile = "data/data_t" + counter + ".json";
+          console.log("File name: " + sourceFile);
+          makeplot(sourceFile);
+        };
+
+        function makeplot(file) {
+          console.log(file);
+          Plotly.d3.json(file, function(data){ processData(data) } );
+        };
+
+        function processData(allRows) {
+            var data = [{
+             z: allRows.z,
+             colorscale: [
+               ['0.0', 'rgb(165,0,38)'],
+               ['0.111111111111', 'rgb(215,48,39)'],
+               ['0.222222222222', 'rgb(244,109,67)'],
+               ['0.333333333333', 'rgb(253,174,97)'],
+               ['0.444444444444', 'rgb(254,224,144)'],
+               ['0.555555555556', 'rgb(224,243,248)'],
+               ['0.666666666667', 'rgb(171,217,233)'],
+               ['0.777777777778', 'rgb(116,173,209)'],
+               ['0.888888888889', 'rgb(69,117,180)'],
+               ['1.0', 'rgb(49,54,149)']
+             ],
+             type: 'heatmap'
+            }];
+            Plotly.newPlot('myDiv', data);
+        };
+    </script>
+  </body>
+</html>
