@@ -10,11 +10,11 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 
-#define DELTA_X 512 //This is a square of 1024
-#define DELTA_Y 512 //    by 1024
+#define DELTA_X 1024 //This is a square of 1024
+#define DELTA_Y 1024 //    by 1024
 
 #define MAX_STEPS_KERNEL 10 //number of computations in kernel per cycle
-#define MIN_VARIATION 0.00005
+#define MIN_VARIATION 0.05
 
 __device__ int step = 0;
 
@@ -181,8 +181,17 @@ void write_matrix(double *mat, size_t rows, size_t cols, char* file_name) {
 
 struct timeval  tp1, tp2;
 
-int main() 
+int main(int argc, char *argv[]) 
 { 
+	long total_steps = 0;
+  	// setup/initialize
+  	if (argc != 2) {
+    		printf ("usage: progName <steps>\n");
+    		exit(-1);
+  	} else {
+    		total_steps = atol(argv[1]);
+	}
+
 	double *mat1;
 	double *mat2;
 	
@@ -197,7 +206,8 @@ int main()
 	bool stop = false;
         bool is_swap = false;
 	size_t seq_steps = 0;
-	while(!stop){
+	while(seq_steps < total_steps){
+	//while(!stop){
 		if(is_swap){
 			stop = sequential_diffuse(mat1, mat2, DELTA_X, DELTA_Y, &seq_steps);
 		} 
@@ -211,10 +221,14 @@ int main()
 	double seq_time_result = (double) (tp2.tv_usec - tp1.tv_usec) / 1000000 + (double) (tp2.tv_sec - tp1.tv_sec);
 
 	printf("Sequential finished in %d steps, writiing to file\n",seq_steps);
+	// Allocates storage
+	char *file_name = (char*)malloc(13 * sizeof(char));
+	// Prints "Hello world!" on hello_world
+	sprintf(file_name, "./seq_data_t%d.json",total_steps);
 	if(is_swap){
-		write_matrix(mat1, DELTA_X, DELTA_Y, "./seq_data_t1.json");
+		write_matrix(mat1, DELTA_X, DELTA_Y, file_name);
 	}else{
-		write_matrix(mat2, DELTA_X, DELTA_Y, "./seq_data_t1.json");
+		write_matrix(mat2, DELTA_X, DELTA_Y, file_name);
 	}
 
 	double *mat1_d, *mat2_d;
@@ -265,10 +279,11 @@ int main()
         
 	cudaDeviceSynchronize();
 	printf("Writing to file \n");
+	sprintf(file_name, "./par_data_t%d.json",total_steps);
 	if(is_swap){
-                write_matrix(mat1, DELTA_X, DELTA_Y, "./par_data_t1.json");
+                write_matrix(mat1, DELTA_X, DELTA_Y, file_name);
         }else{
-                write_matrix(mat2, DELTA_X, DELTA_Y, "./par_data_t1.json");
+                write_matrix(mat2, DELTA_X, DELTA_Y, file_name);
         }
 	printf("Finished writing \n");
 	
