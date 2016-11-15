@@ -4,13 +4,14 @@
 #define THREADS_PER_BLOCK 32 //1024 total threads per block
 #else
 #define THREADS_PER_BLOCK 16 //512 total threads per block
+#include <sys/time.h>
 #endif
 
 #include <stdlib.h> 
 #include <stdio.h> 
 
-#define DELTA_X 128 //This is a square of 1024
-#define DELTA_Y 128 //    by 1024
+#define DELTA_X 512 //This is a square of 1024
+#define DELTA_Y 512 //    by 1024
 
 #define MAX_STEPS_KERNEL 10 //number of computations in kernel per cycle
 #define MIN_VARIATION 0.00005
@@ -178,6 +179,8 @@ void write_matrix(double *mat, size_t rows, size_t cols, char* file_name) {
 	fclose(f);
 }
 
+struct timeval  tp1, tp2;
+
 int main() 
 { 
 	double *mat1;
@@ -189,6 +192,7 @@ int main()
 	init_t0(mat1, DELTA_X, DELTA_Y, 1000.0, 23.0);
 
 	//sequential_diffuse
+        gettimeofday(&tp1, NULL);
 	printf("Starting sequential\n");
 	bool stop = false;
         bool is_swap = false;
@@ -203,6 +207,9 @@ int main()
 		//printf("Step %d \n",seq_steps);
 		is_swap = !is_swap;
 	}
+	gettimeofday(&tp2, NULL);
+	double seq_time_result = (double) (tp2.tv_usec - tp1.tv_usec) / 1000000 + (double) (tp2.tv_sec - tp1.tv_sec);
+
 	printf("Sequential finished in %d steps, writiing to file\n",seq_steps);
 	if(is_swap){
 		write_matrix(mat1, DELTA_X, DELTA_Y, "./seq_data_t1.json");
@@ -213,6 +220,10 @@ int main()
 	double *mat1_d, *mat2_d;
 	int *result_d;
 	printf("Allocating CUDA memory \n");
+
+	init_t0(mat1, DELTA_X, DELTA_Y, 1000.0, 23.0);
+	gettimeofday(&tp1, NULL);
+
 	cudasafe(cudaMalloc ((void**) &result_d, sizeof(int)), "cudaMalloc(result) failed.");
 	cudasafe(cudaMemcpy (result_d,&stop, sizeof(int), cudaMemcpyHostToDevice), "cudaMemcpy host->dev (result) failed.");
 
@@ -243,11 +254,16 @@ int main()
 		
 		//debug_step <<<1, 1 >>> (mat2_d, DELTA_X);
 	}
+
 	printf("Kernel Finished \n");
 	cudasafe(cudaMemcpy(mat1, mat1_d, DELTA_X * DELTA_Y * sizeof(double), cudaMemcpyDeviceToHost), "cudaMemcpy host <-dev(mat1_d) failed.");
 	cudasafe(cudaMemcpy(mat2, mat2_d, DELTA_X * DELTA_Y * sizeof(double), cudaMemcpyDeviceToHost), "cudaMemcpy host <-dev(mat2_d) failed.");
 
-        cudaDeviceSynchronize();
+	gettimeofday(&tp2, NULL);
+
+	double par_time_result = (double) (tp2.tv_usec - tp1.tv_usec) / 1000000 + (double) (tp2.tv_sec - tp1.tv_sec);
+        
+	cudaDeviceSynchronize();
 	printf("Writing to file \n");
 	if(is_swap){
                 write_matrix(mat1, DELTA_X, DELTA_Y, "./par_data_t1.json");
@@ -255,8 +271,13 @@ int main()
                 write_matrix(mat2, DELTA_X, DELTA_Y, "./par_data_t1.json");
         }
 	printf("Finished writing \n");
-	printf("Press any key to exit!");
-	getchar();
+	
+	printf("Problem size: %d \n",DELTA_X*DELTA_Y);
+	printf("seq_time, %.5f\n", seq_time_result);
+	printf("par_time, %.5f\n", par_time_result);
+	printf("speed_up, %.5f\n", seq_time_result/par_time_result);
+	//printf("Press any key to exit!");
+	//getchar();
  
 	return 0; 
 }
