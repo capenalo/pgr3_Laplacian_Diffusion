@@ -13,6 +13,7 @@
     <div class="container theme-showcase">
       <div class="jumbotron">
         <h1>HPC - Program 3 <small>CUDA</small></h1>
+        <p id="display_filename">File: ...</p>
 
         </br>
         </br>
@@ -35,6 +36,7 @@
           console.log("Element clicked: " + counter);
           var sourceFile = "data/data_t" + counter + ".json";
           console.log("File name: " + sourceFile);
+          document.getElementById("display_filename").innerHTML=sourceFile;
           makeplot(sourceFile);
         };
 
