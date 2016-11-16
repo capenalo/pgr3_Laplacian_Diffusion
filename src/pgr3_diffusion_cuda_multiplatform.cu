@@ -10,11 +10,11 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 
-#define DELTA_X 1024 //This is a square of 1024
-#define DELTA_Y 1024 //    by 1024
+//#define DELTA_X 2048 //This is a square of 1024
+//#define DELTA_Y 2048 //    by 1024
 
 #define MAX_STEPS_KERNEL 10 //number of computations in kernel per cycle
-#define MIN_VARIATION 0.05
+#define MIN_VARIATION 0.00005
 
 __device__ int step = 0;
 
@@ -184,12 +184,16 @@ struct timeval  tp1, tp2;
 int main(int argc, char *argv[]) 
 { 
 	long total_steps = 0;
+        long DELTA_X = 0;
+        long DELTA_Y = 0;
   	// setup/initialize
-  	if (argc != 2) {
-    		printf ("usage: progName <steps>\n");
+  	if (argc != 4) {
+    		printf ("usage: progName <DELTA_X> <DELTA_Y> <steps>\n");
     		exit(-1);
   	} else {
-    		total_steps = atol(argv[1]);
+    		total_steps = atol(argv[3]);
+		DELTA_X = atol(argv[1]);
+		DELTA_Y = atol(argv[2]);
 	}
 
 	double *mat1;
@@ -222,7 +226,7 @@ int main(int argc, char *argv[])
 
 	printf("Sequential finished in %d steps, writiing to file\n",seq_steps);
 	// Allocates storage
-	char *file_name = (char*)malloc(13 * sizeof(char));
+	char *file_name = (char*)malloc(25 * sizeof(char));
 	// Prints "Hello world!" on hello_world
 	sprintf(file_name, "./seq_data_t%d.json",total_steps);
 	if(is_swap){

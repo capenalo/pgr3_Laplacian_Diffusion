@@ -2,4 +2,7 @@ pgr3_diffusion_thrust
 pgr3_diffusion
 pgr3_diffusion_cuda
 pgr3_diffusion_cuda2
+pgr3_diffusion_cuda_multiplatform
 *.txt
+*.json
+*.swp
